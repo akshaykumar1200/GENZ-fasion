@@ -48,10 +48,18 @@ export interface RecommendationResponse {
   vibeDescription: string;
 }
 
+export interface HistoryItem {
+  id: string;
+  timestamp: string;
+  originalImage: string;
+  recommendation: RecommendationResponse;
+  vibe: StyleVibe;
+}
+
 export interface TrackingLog {
   timestamp: string;
   userId: string;
   userEmail: string;
-  action: 'SIGN_UP' | 'LOGIN' | 'IMAGE_UPLOAD' | 'RECOMMENDATION_GEN' | 'LOGOUT' | 'EXIT';
+  action: 'SIGN_UP' | 'LOGIN' | 'IMAGE_UPLOAD' | 'RECOMMENDATION_GEN' | 'LOGOUT' | 'EXIT' | 'FEEDBACK' | 'STYLE_SAVED' | 'COLOR_CHANGED';
   details: string;
 }

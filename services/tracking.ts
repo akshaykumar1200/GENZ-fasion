@@ -2,36 +2,39 @@
 import { TrackingLog, UserProfile } from '../types';
 
 /**
- * GOOGLE SHEETS INTEGRATION INSTRUCTIONS:
- * 1. Create a Google Sheet.
- * 2. Go to Extensions > Apps Script.
- * 3. Paste the following code:
+ * DATA EXTRACTION ENGINE (Google Sheets Setup):
+ * 1. Create a Google Sheet titled "DesiDrip_Analytics".
+ * 2. Go to Extensions > Apps Script and paste the following:
  * 
  * function doPost(e) {
  *   var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
  *   var data = JSON.parse(e.postData.contents);
+ *   // Define the extraction columns
  *   sheet.appendRow([
  *     data.timestamp,
  *     data.userId,
  *     data.userEmail,
- *     data.userName || 'N/A',
+ *     data.userName,
  *     data.action,
  *     data.details,
- *     JSON.stringify(data.metadata)
+ *     data.metadata.platform,
+ *     data.metadata.userAgent,
+ *     data.metadata.screenResolution,
+ *     data.metadata.bodyType,
+ *     data.metadata.styleVibe,
+ *     data.metadata.connectionType || 'Unknown',
+ *     data.metadata.isPWA ? 'App' : 'Web'
  *   ]);
- *   return ContentService.createTextOutput("Success").setMimeType(ContentService.MimeType.TEXT);
+ *   return ContentService.createTextOutput("Extracted").setMimeType(ContentService.MimeType.TEXT);
  * }
- * 
- * 4. Click 'Deploy' > 'New Deployment' > Select 'Web App'.
- * 5. Set 'Execute as' to 'Me' and 'Who has access' to 'Anyone'.
- * 6. Copy the Web App URL and paste it into the constant below.
  */
 
-const GOOGLE_SCRIPT_URL = ''; // Paste your Google Apps Script Web App URL here
-const SPREADSHEET_SIM_KEY = 'vibecheck_db_simulation';
+const GOOGLE_SCRIPT_URL = ''; // ONCE PUBLISHED: Paste your Apps Script URL here
+const SPREADSHEET_SIM_KEY = 'desidrip_extraction_v1';
 
 export const TrackingService = {
   logAction: async (action: TrackingLog['action'] | 'SESSION_START' | 'SESSION_END', user: UserProfile, details: string = '') => {
+    // Comprehensive Data Extraction Object
     const entry = {
       timestamp: new Date().toISOString(),
       userId: user.id,
@@ -40,42 +43,53 @@ export const TrackingService = {
       action,
       details,
       metadata: {
+        platform: (navigator as any).platform,
         userAgent: navigator.userAgent,
         language: navigator.language,
         screenResolution: `${window.screen.width}x${window.screen.height}`,
         bodyType: user.bodyType,
-        styleVibe: user.styleVibe
+        styleVibe: user.styleVibe,
+        isPWA: window.matchMedia('(display-mode: standalone)').matches,
+        // @ts-ignore - experimental API
+        connectionType: navigator.connection?.effectiveType || 'unknown'
       }
     };
 
-    // 1. Always update local simulation for the "Daily Tracker" view
+    // LOCAL PERSISTENCE (Extraction Fallback)
     const currentDb = JSON.parse(localStorage.getItem(SPREADSHEET_SIM_KEY) || '[]');
     currentDb.push(entry);
     localStorage.setItem(SPREADSHEET_SIM_KEY, JSON.stringify(currentDb));
 
-    // 2. Real Google Sheets Integration
+    // EXTERNAL EXTRACTION (Production)
     if (GOOGLE_SCRIPT_URL) {
       try {
-        if (action === 'SESSION_END') {
-          // Use sendBeacon for exit events to ensure they complete
+        if (action === 'SESSION_END' || action === 'LOGOUT') {
+          // sendBeacon is vital for capturing exit data
           navigator.sendBeacon(GOOGLE_SCRIPT_URL, JSON.stringify(entry));
         } else {
           await fetch(GOOGLE_SCRIPT_URL, {
             method: 'POST',
-            mode: 'no-cors', // Apps Script requires no-cors or specialized handling
+            mode: 'no-cors',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(entry)
           });
         }
       } catch (error) {
-        console.error('Failed to sync with Google Sheets:', error);
+        console.warn('[EXTRACTION ERROR]: Failed to sync event', error);
       }
     }
 
-    console.log(`[DATA SYNC]: ${action} for ${user.email}`);
+    console.debug(`[EXTRACTED]: ${action} event logged for analytics.`);
   },
 
-  getDailyStats: () => {
-    return JSON.parse(localStorage.getItem(SPREADSHEET_SIM_KEY) || '[]');
+  // Helper to allow manual download of data as JSON
+  exportData: () => {
+    const data = localStorage.getItem(SPREADSHEET_SIM_KEY);
+    const blob = new Blob([data || '[]'], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `desidrip_data_${new Date().toISOString()}.json`;
+    a.click();
   }
 };

@@ -73,7 +73,8 @@ export const getFashionAdvice = async (
 
 export const applyStyleToImage = async (
   imageBase64: string,
-  editInstruction: string
+  editInstruction: string,
+  styleVibe: string = 'Streetwear'
 ): Promise<string> => {
   const ai = new GoogleGenAI({ apiKey: API_KEY });
   
@@ -86,12 +87,13 @@ export const applyStyleToImage = async (
           
           CRITICAL QUALITY RULES:
           1. REALISTIC LAYERING: Do not add redundant layers. If it is a summer look, provide a single clean T-shirt or shirt. 
-          2. NO NONSENSICAL STACKING: Do not put a t-shirt over another t-shirt unless requested. 
-          3. PROPER PROPORTIONS: Ensure t-shirt hems are at a natural length. Do not make garments weirdly long or "mid-made."
-          4. BODY FIT: The clothing must contour realistically to a ${editInstruction.includes('body') ? 'specified' : 'natural'} frame.
-          5. DESI AESTHETIC: Maintain high-quality textures, fabric folds, and clean edges.
+          2. COLOR REFINEMENT: If a color change is requested (e.g., "Change jacket to Electric Blue"), ensure the color looks natural, reflecting actual fabric shadows and highlights.
+          3. FIT ALIGNMENT: Ensure the outfit is perfectly aligned with the user's frame. No weird sagging or glitchy edges.
+          4. ESTABLISHED VIBE: Maintain the ${styleVibe} aesthetic throughout the edit.
+          5. NO NONSENSICAL STACKING: Do not put a t-shirt over another t-shirt unless requested. 
+          6. PROPER PROPORTIONS: Ensure t-shirt hems are at a natural length. Do not make garments weirdly long or "mid-made."
           
-          The final output must look like a professional fashion lookbook photo, not a collage.` }
+          The final output must look like a professional, high-end fashion campaign photo.` }
       ]
     }
   });
