@@ -16,18 +16,29 @@ export const getFashionAdvice = async (
     : "The user wants a general styling recommendation for this piece.";
 
   const prompt = `
-    Analyze this clothing item from the image. 
-    User Profile: Body Type: ${user.bodyType}, Style Vibe: ${user.styleVibe}.
+    Analyze this clothing item from the image for an app called "DESI DRIP". 
+    Target Audience: Gen Z South Asians.
     
+    User Profile: 
+    - Body Structure: ${user.bodyType}
+    - Style Aesthetic: ${user.styleVibe}
+    
+    REALISM & SEASONAL LOGIC:
+    1. Detect the probable weather/environment in the photo. 
+    2. If it's a summer vibe, DO NOT suggest heavy layers. Suggest single-layer fits (e.g., breathable oversized tees, linen shirts).
+    3. Avoid "t-shirt over t-shirt" or nonsensical stacking unless it's a very specific intentional trend (like a long-sleeve base layer).
+    4. Ensure garment lengths are proportional (no weirdly long hems that look like glitches).
+
     ${preferenceContext}
 
-    Following current Gen Z fashion trends, suggest:
-    1. A list of 3-5 complementary colors (if the user asked for a specific item, suggest colors for THAT item).
-    2. A full outfit recommendation. If the user asked for a specific item (like a jacket), provide specific details on that item (e.g., "Baggy distressed denim jacket in vintage blue").
-    3. Three specific Gen Z styling tips for this look.
-    4. A short "vibe" description.
+    Suggest:
+    1. A list of 3-5 complementary colors that pop in a Desi context.
+    2. A full outfit recommendation that respects the season and the user's ${user.bodyType} build.
+    3. Include specific Desi elements (e.g., modern jewelry, traditional footwear patterns).
+    4. Three specific styling tips focused on "the perfect fit" and silhouette.
+    5. A short, punchy "vibe" description.
     
-    Return the response strictly as a JSON object matching this structure:
+    Return the response strictly as a JSON object:
     {
       "complementaryColors": ["hex or color name"],
       "outfitSuggestion": {
@@ -71,7 +82,16 @@ export const applyStyleToImage = async (
     contents: {
       parts: [
         { inlineData: { mimeType: 'image/jpeg', data: imageBase64.split(',')[1] } },
-        { text: `Modify this image based on this fashion request: ${editInstruction}. If the user asks for a jacket, add the jacket over the existing clothes. If they ask for a change in fit (like baggy), modify the existing item to look baggy. Maintain high quality, realistic textures, and the same person/environment.` }
+        { text: `Modify this image based on this fashion request: ${editInstruction}. 
+          
+          CRITICAL QUALITY RULES:
+          1. REALISTIC LAYERING: Do not add redundant layers. If it is a summer look, provide a single clean T-shirt or shirt. 
+          2. NO NONSENSICAL STACKING: Do not put a t-shirt over another t-shirt unless requested. 
+          3. PROPER PROPORTIONS: Ensure t-shirt hems are at a natural length. Do not make garments weirdly long or "mid-made."
+          4. BODY FIT: The clothing must contour realistically to a ${editInstruction.includes('body') ? 'specified' : 'natural'} frame.
+          5. DESI AESTHETIC: Maintain high-quality textures, fabric folds, and clean edges.
+          
+          The final output must look like a professional fashion lookbook photo, not a collage.` }
       ]
     }
   });

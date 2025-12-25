@@ -26,63 +26,98 @@ const SignUp: React.FC<SignUpProps> = ({ onComplete }) => {
   };
 
   return (
-    <div className="max-w-md w-full glass-card p-8 rounded-3xl animate-fadeIn">
-      <div className="text-center mb-8">
-        <h1 className="text-4xl font-bold mb-2">VibeCheck <span className="gradient-text">AI</span></h1>
-        <p className="text-gray-400">Join the style revolution. Personalized for you.</p>
+    <div className="max-w-xl w-full glass-card p-10 md:p-14 rounded-[3rem] animate-fadeIn border-t-2 border-white/20 shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+      <div className="text-center mb-12">
+        <div className="inline-block px-4 py-1.5 bg-gradient-to-r from-pink-500/20 to-orange-500/20 border border-pink-500/30 rounded-full text-[10px] font-black tracking-[0.3em] text-pink-500 uppercase mb-6">
+          Establish Your Identity
+        </div>
+        <h1 className="text-6xl font-black mb-3 tracking-tighter leading-none">
+          DESI <span className="gradient-text">DRIP</span>
+        </h1>
+        <p className="text-gray-400 font-medium tracking-tight">The ultimate cultural fit-check. No mid styles allowed.</p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div>
-          <label className="block text-sm font-medium text-gray-400 mb-2">Full Name</label>
-          <input 
-            type="text" 
-            required
-            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-pink-500 transition-colors"
-            placeholder="E.g. Alex Rivera"
-            value={formData.name}
-            onChange={(e) => setFormData({...formData, name: e.target.value})}
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-400 mb-2">Email Address</label>
-          <input 
-            type="email" 
-            required
-            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-pink-500 transition-colors"
-            placeholder="alex@example.com"
-            value={formData.email}
-            onChange={(e) => setFormData({...formData, email: e.target.value})}
-          />
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-400 mb-2">Body Type</label>
-            <select 
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-pink-500 transition-colors"
-              value={formData.bodyType}
-              onChange={(e) => setFormData({...formData, bodyType: e.target.value as BodyType})}
-            >
-              {Object.values(BodyType).map(bt => <option key={bt} value={bt}>{bt}</option>)}
-            </select>
+      <form onSubmit={handleSubmit} className="space-y-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-2">
+            <label className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] ml-1">Full Name</label>
+            <input 
+              type="text" 
+              required
+              className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:ring-2 focus:ring-pink-500/50 transition-all font-bold placeholder:text-gray-700 text-sm"
+              placeholder="e.g. Aryan Malhotra"
+              value={formData.name}
+              onChange={(e) => setFormData({...formData, name: e.target.value})}
+            />
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-400 mb-2">Style Vibe</label>
-            <select 
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-pink-500 transition-colors"
-              value={formData.styleVibe}
-              onChange={(e) => setFormData({...formData, styleVibe: e.target.value as StyleVibe})}
-            >
-              {Object.values(StyleVibe).map(v => <option key={v} value={v}>{v}</option>)}
-            </select>
+
+          <div className="space-y-2">
+            <label className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] ml-1">Email</label>
+            <input 
+              type="email" 
+              required
+              className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 focus:outline-none focus:ring-2 focus:ring-pink-500/50 transition-all font-bold placeholder:text-gray-700 text-sm"
+              placeholder="vibe@desidrip.ai"
+              value={formData.email}
+              onChange={(e) => setFormData({...formData, email: e.target.value})}
+            />
           </div>
         </div>
 
-        <Button type="submit" className="w-full py-4 text-lg">
-          Start Styling <i className="fas fa-arrow-right ml-2"></i>
-        </Button>
+        <div className="space-y-6">
+          <div className="space-y-3">
+            <label className="text-[10px] font-black text-pink-500 uppercase tracking-[0.3em] ml-1 flex items-center gap-2">
+              <i className="fas fa-user-tag text-[8px]"></i> Body Structure
+            </label>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              {Object.values(BodyType).map((bt) => (
+                <button
+                  key={bt}
+                  type="button"
+                  onClick={() => setFormData({ ...formData, bodyType: bt })}
+                  className={`px-4 py-3 rounded-xl text-[10px] font-bold border transition-all ${
+                    formData.bodyType === bt 
+                    ? 'bg-pink-500 border-pink-500 text-white shadow-lg shadow-pink-500/20 scale-[1.05]' 
+                    : 'bg-white/5 border-white/10 text-gray-400 hover:border-white/30'
+                  }`}
+                >
+                  {bt}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <label className="text-[10px] font-black text-orange-500 uppercase tracking-[0.3em] ml-1 flex items-center gap-2">
+              <i className="fas fa-bolt text-[8px]"></i> Style Aesthetic
+            </label>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              {Object.values(StyleVibe).map((v) => (
+                <button
+                  key={v}
+                  type="button"
+                  onClick={() => setFormData({ ...formData, styleVibe: v })}
+                  className={`px-4 py-3 rounded-xl text-[10px] font-bold border transition-all ${
+                    formData.styleVibe === v 
+                    ? 'bg-orange-500 border-orange-500 text-white shadow-lg shadow-orange-500/20 scale-[1.05]' 
+                    : 'bg-white/5 border-white/10 text-gray-400 hover:border-white/30'
+                  }`}
+                >
+                  {v}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="pt-4">
+          <Button type="submit" className="w-full py-6 text-xl font-black rounded-[2rem] group shadow-2xl shadow-pink-500/20">
+            CLAIM YOUR DRIP <i className="fas fa-arrow-right ml-3 group-hover:translate-x-1 transition-transform"></i>
+          </Button>
+          <p className="text-center text-[10px] text-gray-600 mt-6 font-bold uppercase tracking-widest">
+            Join 10k+ Desi icons globally
+          </p>
+        </div>
       </form>
     </div>
   );

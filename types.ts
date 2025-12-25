@@ -5,7 +5,11 @@ export enum BodyType {
   PEAR = 'Pear',
   INVERTED_TRIANGLE = 'Inverted Triangle',
   APPLE = 'Apple',
-  ATHLETIC = 'Athletic'
+  ATHLETIC = 'Athletic',
+  SLIM_PETITE = 'Slim / Petite',
+  PLUS_CURVY = 'Plus / Curvy',
+  TALL_LEAN = 'Tall & Lean',
+  MUSCULAR = 'Muscular / Broad'
 }
 
 export enum StyleVibe {
@@ -13,7 +17,13 @@ export enum StyleVibe {
   MINIMALIST = 'Minimalist',
   Y2K = 'Y2K / Retro',
   GORPCORE = 'Gorpcore',
-  OLD_MONEY = 'Old Money'
+  OLD_MONEY = 'Old Money',
+  INDO_WESTERN = 'Indo-Western Fusion',
+  FORMAL = 'Desi Formal / Sherwani-Core',
+  DENIM_MAXIMALIST = 'Denim Maximalist',
+  ATHLEISURE = 'Athleisure',
+  GRUNGE = 'Desi Grunge',
+  PREPPY = 'Academia / Preppy'
 }
 
 export interface UserProfile {

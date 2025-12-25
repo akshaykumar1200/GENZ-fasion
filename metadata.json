@@ -1,6 +1,6 @@
 {
-  "name": "Copy of VibeCheck AI - Gen Z Fashion Stylist",
-  "description": "A cutting-edge fashion assistant that analyzes your clothing, suggests complementary outfits and colors based on Gen Z trends and body types, and tracks user engagement in real-time.",
+  "name": "DESI DRIP - Gen Z Fashion Stylist",
+  "description": "The ultimate cultural fit-check assistant. Analyzes your drip, suggests complementary styles, and brings that Desi modern aesthetic to your closet using Gemini AI.",
   "requestFramePermissions": [
     "camera"
   ]
