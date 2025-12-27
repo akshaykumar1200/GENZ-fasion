@@ -1,6 +1,6 @@
 
 import { GoogleGenAI, Type, GenerateContentResponse } from "@google/genai";
-import { RecommendationResponse, UserProfile } from "../types";
+import { RecommendationResponse, UserProfile, MonthlyPlan, WardrobeItem } from "../types";
 
 const API_KEY = process.env.API_KEY || '';
 
@@ -25,22 +25,21 @@ export const getFashionAdvice = async (
     
     REALISM & SEASONAL LOGIC:
     1. Detect the probable weather/environment in the photo. 
-    2. If it's a summer vibe, DO NOT suggest heavy layers. Suggest single-layer fits (e.g., breathable oversized tees, linen shirts).
-    3. Avoid "t-shirt over t-shirt" or nonsensical stacking unless it's a very specific intentional trend (like a long-sleeve base layer).
-    4. Ensure garment lengths are proportional (no weirdly long hems that look like glitches).
+    2. If it's a summer vibe, DO NOT suggest heavy layers.
+    3. Ensure garment lengths are proportional.
 
     ${preferenceContext}
 
     Suggest:
-    1. A list of 3-5 complementary colors that pop in a Desi context.
-    2. A full outfit recommendation that respects the season and the user's ${user.bodyType} build.
-    3. Include specific Desi elements (e.g., modern jewelry, traditional footwear patterns).
-    4. Three specific styling tips focused on "the perfect fit" and silhouette.
+    1. A list of 3-5 complementary colors.
+    2. A full outfit recommendation for a ${user.bodyType} build.
+    3. Include specific Desi elements.
+    4. Three styling tips.
     5. A short, punchy "vibe" description.
     
-    Return the response strictly as a JSON object:
+    Return JSON:
     {
-      "complementaryColors": ["hex or color name"],
+      "complementaryColors": ["string"],
       "outfitSuggestion": {
         "top": "string",
         "bottom": "string",
@@ -63,12 +62,72 @@ export const getFashionAdvice = async (
         ]
       }
     ],
-    config: {
-      responseMimeType: 'application/json'
-    }
+    config: { responseMimeType: 'application/json' }
   });
 
   return JSON.parse(response.text || '{}') as RecommendationResponse;
+};
+
+export const getMonthlyStylePlan = async (user: UserProfile, closet: WardrobeItem[], occasions?: { day: number, type: string }[]): Promise<MonthlyPlan> => {
+  const ai = new GoogleGenAI({ apiKey: API_KEY });
+  const nextMonthDate = new Date();
+  nextMonthDate.setMonth(nextMonthDate.getMonth() + 1);
+  const monthName = nextMonthDate.toLocaleString('default', { month: 'long' });
+  const year = nextMonthDate.getFullYear();
+
+  const closetContext = closet.length > 0 
+    ? `The user has ${closet.length} items in their vault. Their item IDs are: ${closet.map(i => i.id).join(', ')}. 
+       PLEASE ASSIGN ONE OF THESE IDs TO EACH DAY in the "wardrobeItemId" field where possible.` 
+    : "The user has no items in their vault yet, suggest ideal items.";
+
+  const occasionContext = occasions && occasions.length > 0
+    ? `Special events: ${occasions.map(o => `Day ${o.day}: ${o.type}`).join(', ')}.`
+    : "";
+
+  const prompt = `
+    Generate a 30-day "Personalized Drip Calendar" for ${monthName} ${year}.
+    User: Gen Z South Asian, ${user.styleVibe} vibe, ${user.bodyType} body.
+    
+    ${closetContext}
+    ${occasionContext}
+
+    REPETITION RULES:
+    - Only repeat a specific item ID maximum 3 times in the month.
+    - Spread out repetitions at least 4 days apart.
+    
+    STYLE LOGIC:
+    - Provide a "doWear" tip (Green Flag).
+    - Provide a "dontWear" tip (Red Flag - what to avoid for this specific fit).
+    - Provide a "colorPalette" (3 hex codes that work together for this fit).
+
+    Return JSON:
+    {
+      "month": "${monthName}",
+      "year": ${year},
+      "plans": [
+        { 
+          "day": 1, 
+          "vibe": "Cyber-Kurta", 
+          "outfit": "Style description here", 
+          "wardrobeItemId": "matching_id_from_provided_list_or_null",
+          "doWear": "Style this with silver jewelry",
+          "dontWear": "Avoid chunky sneakers with this look",
+          "colorPalette": ["#hex", "#hex", "#hex"],
+          "isOccasion": boolean,
+          "occasionType": "string"
+        },
+        ... total 30 days
+      ]
+    }
+  `;
+
+  const response = await ai.models.generateContent({
+    model: 'gemini-3-flash-preview',
+    contents: [{ parts: [{ text: prompt }] }],
+    config: { responseMimeType: 'application/json' }
+  });
+
+  return JSON.parse(response.text || '{}') as MonthlyPlan;
 };
 
 export const applyStyleToImage = async (
@@ -83,17 +142,7 @@ export const applyStyleToImage = async (
     contents: {
       parts: [
         { inlineData: { mimeType: 'image/jpeg', data: imageBase64.split(',')[1] } },
-        { text: `Modify this image based on this fashion request: ${editInstruction}. 
-          
-          CRITICAL QUALITY RULES:
-          1. REALISTIC LAYERING: Do not add redundant layers. If it is a summer look, provide a single clean T-shirt or shirt. 
-          2. COLOR REFINEMENT: If a color change is requested (e.g., "Change jacket to Electric Blue"), ensure the color looks natural, reflecting actual fabric shadows and highlights.
-          3. FIT ALIGNMENT: Ensure the outfit is perfectly aligned with the user's frame. No weird sagging or glitchy edges.
-          4. ESTABLISHED VIBE: Maintain the ${styleVibe} aesthetic throughout the edit.
-          5. NO NONSENSICAL STACKING: Do not put a t-shirt over another t-shirt unless requested. 
-          6. PROPER PROPORTIONS: Ensure t-shirt hems are at a natural length. Do not make garments weirdly long or "mid-made."
-          
-          The final output must look like a professional, high-end fashion campaign photo.` }
+        { text: `Modify this image based on: ${editInstruction}. Maintain the ${styleVibe} aesthetic. The output must be a high-end fashion campaign photo.` }
       ]
     }
   });

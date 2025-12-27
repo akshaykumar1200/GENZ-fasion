@@ -48,6 +48,14 @@ export interface RecommendationResponse {
   vibeDescription: string;
 }
 
+export interface WardrobeItem {
+  id: string;
+  imageUrl: string;
+  category: 'Top' | 'Bottom' | 'Outerwear' | 'Shoes' | 'Accessory';
+  tags: string[];
+  addedAt: string;
+}
+
 export interface HistoryItem {
   id: string;
   timestamp: string;
@@ -56,10 +64,28 @@ export interface HistoryItem {
   vibe: StyleVibe;
 }
 
+export interface DayPlan {
+  day: number;
+  vibe: string;
+  outfit: string;
+  wardrobeItemId?: string; // Link to the specific item image
+  doWear: string;
+  dontWear: string;
+  colorPalette: string[];
+  isOccasion?: boolean;
+  occasionType?: string;
+}
+
+export interface MonthlyPlan {
+  month: string;
+  year: number;
+  plans: DayPlan[];
+}
+
 export interface TrackingLog {
   timestamp: string;
   userId: string;
   userEmail: string;
-  action: 'SIGN_UP' | 'LOGIN' | 'IMAGE_UPLOAD' | 'RECOMMENDATION_GEN' | 'LOGOUT' | 'EXIT' | 'FEEDBACK' | 'STYLE_SAVED' | 'COLOR_CHANGED';
+  action: 'SIGN_UP' | 'LOGIN' | 'IMAGE_UPLOAD' | 'RECOMMENDATION_GEN' | 'LOGOUT' | 'EXIT' | 'FEEDBACK' | 'STYLE_SAVED' | 'COLOR_CHANGED' | 'WARDROBE_ADD' | 'CALENDAR_GEN';
   details: string;
 }
