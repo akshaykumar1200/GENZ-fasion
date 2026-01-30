@@ -51,7 +51,7 @@ export interface RecommendationResponse {
 export interface WardrobeItem {
   id: string;
   imageUrl: string;
-  category: 'Top' | 'Bottom' | 'Outerwear' | 'Shoes' | 'Accessory';
+  category: 'Top' | 'Bottom' | 'Outerwear' | 'Shoes' | 'Accessory' | 'One-Piece';
   tags: string[];
   addedAt: string;
 }
@@ -68,7 +68,7 @@ export interface DayPlan {
   day: number;
   vibe: string;
   outfit: string;
-  wardrobeItemId?: string; // Link to the specific item image
+  wardrobeItemId?: string; 
   doWear: string;
   dontWear: string;
   colorPalette: string[];
@@ -82,10 +82,32 @@ export interface MonthlyPlan {
   plans: DayPlan[];
 }
 
+export interface TripDetails {
+  destination: string;
+  startDate: string;
+  endDate: string;
+  purpose: 'Vacation' | 'Business' | 'Adventure' | 'Party';
+  vehicle: 'Plane' | 'Car' | 'Train' | 'Bike';
+}
+
+export interface PackingItem {
+  item: string;
+  category: 'Clothes' | 'Toiletries' | 'Tech' | 'Documents';
+  isPacked: boolean;
+  reason: string;
+}
+
+export interface TripPlan {
+  weatherSummary: string;
+  outfitStrategy: string;
+  packingList: PackingItem[];
+  shoppingList: string[];
+}
+
 export interface TrackingLog {
   timestamp: string;
   userId: string;
   userEmail: string;
-  action: 'SIGN_UP' | 'LOGIN' | 'IMAGE_UPLOAD' | 'RECOMMENDATION_GEN' | 'LOGOUT' | 'EXIT' | 'FEEDBACK' | 'STYLE_SAVED' | 'COLOR_CHANGED' | 'WARDROBE_ADD' | 'CALENDAR_GEN';
+  action: string;
   details: string;
 }

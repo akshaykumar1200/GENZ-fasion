@@ -14,20 +14,20 @@ const Button: React.FC<ButtonProps> = ({
   ...props 
 }) => {
   const variants = {
-    primary: 'bg-gradient-to-br from-[#FF9933] via-[#FF007F] to-[#4B0082] hover:scale-[1.02] active:scale-[0.98] text-white shadow-[0_0_30px_rgba(255,0,127,0.3)] border border-white/10',
-    secondary: 'bg-white/5 hover:bg-white/10 text-white backdrop-blur-md border border-white/10 hover:border-white/20',
-    outline: 'border-2 border-pink-500/30 hover:border-pink-500 text-pink-500 hover:bg-pink-500/5',
-    danger: 'bg-red-500/10 border border-red-500/30 text-red-400 hover:bg-red-500/20'
+    primary: 'bg-white text-black hover:bg-gray-200 border border-transparent shadow-[0_0_20px_rgba(255,255,255,0.15)]',
+    secondary: 'bg-neutral-900 text-white border border-neutral-800 hover:border-neutral-600',
+    outline: 'bg-transparent border border-white/30 text-white hover:border-white hover:bg-white/5',
+    danger: 'bg-red-500/10 border border-red-500/30 text-red-500 hover:bg-red-500/20'
   };
 
   return (
     <button 
-      className={`px-8 py-4 rounded-[1.25rem] font-black uppercase tracking-widest text-xs transition-all duration-300 flex items-center justify-center gap-3 disabled:opacity-40 disabled:cursor-not-allowed ${variants[variant]} ${className}`}
+      className={`px-8 py-4 rounded-2xl font-bold uppercase tracking-widest text-[10px] transition-all duration-300 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed ${variants[variant]} ${className}`}
       disabled={isLoading}
       {...props}
     >
       {isLoading ? (
-        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+        <div className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
       ) : null}
       {children}
     </button>

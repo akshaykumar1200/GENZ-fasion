@@ -5,12 +5,13 @@ import SignUp from './components/SignUp';
 import OutfitPlanner from './components/OutfitPlanner';
 import Wardrobe from './components/Wardrobe';
 import CalendarView from './components/CalendarView';
+import TravelPlanner from './components/TravelPlanner';
 import { TrackingService } from './services/tracking';
 import Button from './components/Button';
 
 const App: React.FC = () => {
   const [user, setUser] = useState<UserProfile | null>(null);
-  const [activeTab, setActiveTab] = useState<'home' | 'search' | 'calendar' | 'wardrobe' | 'settings'>('home');
+  const [activeTab, setActiveTab] = useState<'home' | 'search' | 'calendar' | 'wardrobe' | 'travel' | 'settings'>('home');
   const [wardrobeStyledItem, setWardrobeStyledItem] = useState<string | null>(null);
 
   useEffect(() => {
@@ -22,15 +23,6 @@ const App: React.FC = () => {
       setUser(currentUser);
       TrackingService.logAction('LOGIN', currentUser, 'Auto-login via storage');
     }
-
-    const handleTabClose = () => {
-      if (currentUser) {
-        TrackingService.logAction('SESSION_END' as any, currentUser, 'Tab Closed');
-      }
-    };
-
-    window.addEventListener('beforeunload', handleTabClose);
-    return () => window.removeEventListener('beforeunload', handleTabClose);
   }, []);
 
   const handleSignUp = (newUser: UserProfile) => {
@@ -41,7 +33,6 @@ const App: React.FC = () => {
 
   const handleLogout = () => {
     if (user) {
-      TrackingService.logAction('LOGOUT', user, 'Intentional logout');
       setUser(null);
       localStorage.removeItem('desi_drip_user');
     }
@@ -50,7 +41,6 @@ const App: React.FC = () => {
   const handleStyleWardrobeItem = (imageUrl: string) => {
     setWardrobeStyledItem(imageUrl);
     setActiveTab('search');
-    TrackingService.logAction('WARDROBE_ADD' as any, user!, 'Transitioning item to AI Stylist');
   };
 
   const renderTabContent = () => {
@@ -59,28 +49,27 @@ const App: React.FC = () => {
     switch (activeTab) {
       case 'home':
         return (
-          <div className="flex flex-col items-center justify-center min-h-[60vh] text-center animate-fadeIn px-6">
-            <div className="w-32 h-32 bg-gradient-to-tr from-pink-500/10 to-orange-500/10 rounded-[3rem] flex items-center justify-center mb-10 border border-white/5 shadow-[0_0_80px_rgba(236,72,153,0.1)] relative">
-              <div className="absolute inset-0 bg-pink-500/5 blur-2xl rounded-full"></div>
-              <i className="fas fa-sparkles text-5xl text-pink-500 relative z-10"></i>
-            </div>
-            <h2 className="text-7xl font-black italic mb-6 tracking-tighter uppercase leading-[0.8] opacity-90">
-              Future <br/> <span className="gradient-text">Drip</span>
-            </h2>
-            <p className="text-gray-500 max-w-sm font-medium mt-4 text-base leading-relaxed opacity-60">
-              The laboratory is quiet. Head to <span className="text-pink-500 font-bold">Search</span> to start your fit-check or <span className="text-pink-500 font-bold">Wardrobe</span> to view your collection.
-            </p>
-
-            {/* Social Icons Section (In the lower bottom section of the home screen) */}
-            <div className="mt-24 flex flex-col items-center gap-8">
-              <div className="h-px w-12 bg-white/10"></div>
-              <p className="text-[10px] font-black uppercase tracking-[0.6em] text-gray-700">Connect to Collective</p>
-              <div className="flex items-center gap-12">
-                <a href="#" className="text-2xl text-gray-600 hover:text-pink-500 transition-all duration-500 hover:scale-125 hover:-translate-y-1"><i className="fab fa-instagram"></i></a>
-                <a href="#" className="text-2xl text-gray-600 hover:text-green-500 transition-all duration-500 hover:scale-125 hover:-translate-y-1"><i className="fab fa-whatsapp"></i></a>
-                <a href="#" className="text-2xl text-gray-600 hover:text-blue-500 transition-all duration-500 hover:scale-125 hover:-translate-y-1"><i className="fab fa-facebook-f"></i></a>
-                <a href="#" className="text-2xl text-gray-600 hover:text-white transition-all duration-500 hover:scale-125 hover:-translate-y-1"><i className="fab fa-tiktok"></i></a>
-              </div>
+          <div className="flex flex-col items-center justify-center min-h-[70vh] text-center animate-fade-in px-6">
+            <h1 className="text-8xl font-cali mb-2 text-white">Desi Drip</h1>
+            <p className="text-gray-500 text-xs font-bold uppercase tracking-[0.6em] mb-12">Gen Z Styling Intelligence</p>
+            
+            <div className="grid grid-cols-2 gap-4 w-full max-w-sm">
+              <button onClick={() => setActiveTab('search')} className="ios-card p-6 rounded-3xl hover:bg-white hover:text-black transition-colors group">
+                <i className="fas fa-magic text-2xl mb-3"></i>
+                <p className="text-[10px] font-bold uppercase tracking-widest">Fit Check</p>
+              </button>
+              <button onClick={() => setActiveTab('wardrobe')} className="ios-card p-6 rounded-3xl hover:bg-white hover:text-black transition-colors group">
+                <i className="fas fa-layer-group text-2xl mb-3"></i>
+                <p className="text-[10px] font-bold uppercase tracking-widest">Vault</p>
+              </button>
+              <button onClick={() => setActiveTab('calendar')} className="ios-card p-6 rounded-3xl hover:bg-white hover:text-black transition-colors group">
+                <i className="far fa-calendar text-2xl mb-3"></i>
+                <p className="text-[10px] font-bold uppercase tracking-widest">Plan</p>
+              </button>
+              <button onClick={() => setActiveTab('travel')} className="ios-card p-6 rounded-3xl hover:bg-white hover:text-black transition-colors group">
+                <i className="fas fa-plane text-2xl mb-3"></i>
+                <p className="text-[10px] font-bold uppercase tracking-widest">Travel</p>
+              </button>
             </div>
           </div>
         );
@@ -90,38 +79,30 @@ const App: React.FC = () => {
         return <CalendarView user={user} />;
       case 'wardrobe':
         return <Wardrobe user={user} onStyleItem={handleStyleWardrobeItem} />;
+      case 'travel':
+        return <TravelPlanner user={user} />;
       case 'settings':
         return (
-          <div className="w-full max-w-2xl mx-auto space-y-8 animate-fadeIn pb-20">
-            <div className="glass-card p-12 rounded-[4rem] border border-white/5 relative overflow-hidden">
-              <div className="absolute -top-24 -right-24 w-64 h-64 bg-pink-500/5 blur-[100px] rounded-full"></div>
-              <h2 className="text-5xl font-black mb-12 italic uppercase tracking-tighter relative z-10">User Node</h2>
-              <div className="space-y-8 relative z-10">
-                <div className="p-8 bg-white/[0.02] rounded-[2.5rem] border border-white/5 shadow-inner">
-                  <p className="text-[10px] font-black text-gray-600 uppercase tracking-[0.4em] mb-4">Identity Verification</p>
-                  <p className="font-bold text-2xl tracking-tight">{user.name}</p>
-                  <p className="text-sm text-pink-500 font-bold mt-1">{user.email}</p>
+          <div className="w-full max-w-md mx-auto space-y-8 animate-slide-up pt-12 px-4">
+             <div className="text-center">
+                <div className="w-24 h-24 mx-auto bg-white rounded-full flex items-center justify-center text-4xl text-black font-serif-display mb-4">
+                  {user.name.charAt(0)}
                 </div>
-                <div className="grid grid-cols-2 gap-6">
-                  <div className="p-8 bg-white/[0.02] rounded-[2.5rem] border border-white/5">
-                    <p className="text-[10px] font-black text-gray-600 uppercase tracking-[0.4em] mb-3">Physique</p>
-                    <p className="font-bold text-base">{user.bodyType}</p>
-                  </div>
-                  <div className="p-8 bg-white/[0.02] rounded-[2.5rem] border border-white/5">
-                    <p className="text-[10px] font-black text-gray-600 uppercase tracking-[0.4em] mb-3">Core Vibe</p>
-                    <p className="font-bold text-base">{user.styleVibe}</p>
-                  </div>
-                </div>
-                <div className="pt-12 space-y-4">
-                  <Button variant="outline" className="w-full py-6 rounded-[2rem]" onClick={() => window.location.reload()}>
-                    Reset Session State
-                  </Button>
-                  <Button variant="danger" className="w-full py-5 rounded-[2rem]" onClick={handleLogout}>
-                    Decommission Profile
-                  </Button>
-                </div>
-              </div>
-            </div>
+                <h2 className="text-3xl font-serif-display">{user.name}</h2>
+                <p className="text-gray-500 text-xs mt-2 uppercase tracking-widest">{user.styleVibe}</p>
+             </div>
+             
+             <div className="space-y-4">
+               <div className="ios-card p-5 rounded-2xl flex justify-between items-center">
+                  <span className="text-sm font-medium">Notifications</span>
+                  <div className="w-10 h-6 bg-white rounded-full relative"><div className="w-4 h-4 bg-black rounded-full absolute top-1 right-1"></div></div>
+               </div>
+               <div className="ios-card p-5 rounded-2xl flex justify-between items-center">
+                  <span className="text-sm font-medium">Dark Mode</span>
+                  <div className="w-10 h-6 bg-green-500 rounded-full relative"><div className="w-4 h-4 bg-white rounded-full absolute top-1 right-1"></div></div>
+               </div>
+               <Button variant="danger" className="w-full mt-8" onClick={handleLogout}>Deactivate</Button>
+             </div>
           </div>
         );
       default:
@@ -130,63 +111,37 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col selection:bg-pink-500 selection:text-white pb-32">
-      {/* Dynamic Background Effects */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-pink-500/5 blur-[120px] rounded-full"></div>
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-orange-500/5 blur-[120px] rounded-full"></div>
+    <div className="min-h-screen flex flex-col pb-28">
+      {/* Background Gradient Mesh */}
+      <div className="fixed inset-0 pointer-events-none z-[-1]">
+        <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] bg-white/5 blur-[120px] rounded-full opacity-40"></div>
+        <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-white/5 blur-[100px] rounded-full opacity-30"></div>
       </div>
 
-      <header className="p-6 md:px-12 flex items-center justify-between glass-card sticky top-0 z-50 border-b border-white/5 shadow-2xl">
-        <div className="flex items-center gap-4 group cursor-pointer" onClick={() => setActiveTab('home')}>
-          <div className="w-11 h-11 bg-gradient-to-tr from-[#FF9933] to-[#FF007F] rounded-2xl flex items-center justify-center rotate-6 shadow-lg shadow-pink-500/30 group-hover:rotate-12 group-active:scale-90 transition-all duration-300">
-            <i className="fas fa-fire-alt text-white text-xl"></i>
-          </div>
-          <div>
-            <span className="text-2xl font-black tracking-tighter leading-none block uppercase italic group-hover:tracking-normal transition-all">Desi Drip</span>
-            <span className="text-[8px] font-black uppercase tracking-[0.4em] text-pink-500/80">Extraction v3.8</span>
-          </div>
-        </div>
-        
-        {user && (
-          <div className="hidden sm:flex items-center gap-3 bg-white/5 px-4 py-2 rounded-2xl border border-white/5">
-            <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-            <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Authenticated</span>
-          </div>
-        )}
-      </header>
-
-      <main className="flex-1 container mx-auto px-6 py-12 relative z-10">
+      <main className="flex-1 relative z-10">
         {renderTabContent()}
       </main>
 
       {user && (
-        <nav className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[60] glass-card border border-white/10 px-6 py-4 flex items-center justify-between w-[94%] max-w-lg rounded-[3rem] shadow-[0_30px_70px_rgba(0,0,0,0.9)] backdrop-blur-3xl">
+        <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] bg-black/80 backdrop-blur-2xl border border-white/10 px-2 py-2 flex items-center justify-between gap-2 rounded-full shadow-2xl w-[90%] max-w-md">
           {[
             { id: 'home', icon: 'fa-house' },
-            { id: 'search', icon: 'fa-magnifying-glass' },
-            { id: 'calendar', icon: 'fa-calendar-days' },
-            { id: 'wardrobe', icon: 'fa-shirt' },
-            { id: 'settings', icon: 'fa-gear' }
+            { id: 'search', icon: 'fa-search' },
+            { id: 'wardrobe', icon: 'fa-layer-group' },
+            { id: 'calendar', icon: 'fa-calendar' },
+            { id: 'travel', icon: 'fa-plane' },
+            { id: 'settings', icon: 'fa-user' }
           ].map((tab) => (
             <button
               key={tab.id}
-              onClick={() => {
-                setActiveTab(tab.id as any);
-                TrackingService.logAction('LOGIN' as any, user, `Tab navigation: ${tab.id}`);
-              }}
-              className="flex flex-col items-center justify-center relative outline-none py-1 group"
-            >
-              <div className={`w-14 h-14 rounded-3xl flex items-center justify-center transition-all duration-500 ${
+              onClick={() => setActiveTab(tab.id as any)}
+              className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${
                 activeTab === tab.id 
-                  ? 'bg-gradient-to-br from-pink-500 to-orange-500 text-white shadow-[0_15px_35px_rgba(236,72,153,0.5)] -translate-y-4 scale-110' 
+                  ? 'bg-white text-black scale-105' 
                   : 'text-gray-500 hover:text-white hover:bg-white/10'
-              }`}>
-                <i className={`fa-solid ${tab.icon} text-xl`}></i>
-              </div>
-              {activeTab === tab.id && (
-                <div className="absolute -bottom-1 w-2 h-2 bg-pink-500 rounded-full shadow-[0_0_15px_#ec4899] animate-pulse"></div>
-              )}
+              }`}
+            >
+              <i className={`fas ${tab.icon} text-sm`}></i>
             </button>
           ))}
         </nav>
